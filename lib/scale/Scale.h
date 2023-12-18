@@ -44,7 +44,7 @@ public:
   friend bool operator<(const Person& l, const Person& r)
   { return std::tie(l.valid, l.person) <  std::tie(r.valid, r.person); }
   friend bool operator==(const Person& l, const Person& r)
-  { return (l.valid == l.valid) && (l.person ==  r.person); }
+  { return (l.valid == r.valid) && (l.person ==  r.person); }
 
 };
 inline bool operator> (const Person& lhs, const Person& rhs) { return rhs < lhs; }
@@ -66,7 +66,7 @@ public:
   friend bool operator<(const Weight& l, const Weight& r)
   { return std::tie(l.valid, l.timestamp) <  std::tie(r.valid, r.timestamp); }
   friend bool operator==(const Weight& l, const Weight& r)
-  { return (l.valid == l.valid) && (l.timestamp ==  r.timestamp); }
+  { return (l.valid == r.valid) && (l.timestamp ==  r.timestamp); }
 };
 inline bool operator> (const Weight& lhs, const Weight& rhs) { return rhs < lhs; }
 inline bool operator<=(const Weight& lhs, const Weight& rhs) { return !(lhs > rhs); }
@@ -92,7 +92,7 @@ public:
   { return std::tie(l.valid, l.timestamp) <  std::tie(r.valid, r.timestamp); }
 
   friend bool operator==(const Body& l, const Body& r)
-  { return (l.valid == l.valid) && (l.timestamp ==  r.timestamp); }
+  { return (l.valid == r.valid) && (l.timestamp ==  r.timestamp); }
 
 };
 inline bool operator> (const Body& lhs, const Body& rhs) { return rhs < lhs; }
