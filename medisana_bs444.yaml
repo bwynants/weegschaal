@@ -1,0 +1,116 @@
+substitutions:
+  device_name: "medisana-bs444"
+
+external_components:
+  - source: 
+      type: local
+      path: components
+
+esphome:
+  name: ${device_name}
+  friendly_name: Medisana BS444
+  project:
+    name: bwynants.$device_name
+    version: "0.8"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: INFO
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_name} Fallback Hotspot
+    ap_timeout: 15s
+
+captive_portal:
+    
+web_server:
+  port: 80
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: false
+
+ble_client:
+  - mac_address: !secret medisana_scale
+    id: medisababs44_ble_id
+
+sensor:
+  - platform: medisana_bs444
+    ble_client_id: medisababs44_ble_id
+    weight_1:
+      name: "Weight user 1"
+    kcal_1:
+      name: "kcal user 1"
+    fat_1:
+      name: "Fat user 1"
+    tbw_1:
+      name: "Water user 1"
+    muscle_1:
+      name: "Muscle user 1"
+    bone_1:
+      name: "Bone user 1"
+    bmi_1:
+      name: "BMI user 1"
+
+    weight_2:
+      name: "Weight user 2"
+    kcal_2:
+      name: "kcal user 2"
+    fat_2:
+      name: "Fat user 2"
+    tbw_2:
+      name: "Water user 2"
+    muscle_2:
+      name: "Muscle user 2"
+    bone_2:
+      name: "Bone user 2"
+    bmi_2:
+      name: "BMI user 2"
+
+  - platform: wifi_signal
+    name: Wi-Fi Signal
+    update_interval: 60s
+    entity_category: diagnostic
+
+
+button:
+  # A reboot button is always useful
+  - platform: restart
+    entity_category: diagnostic
+    name: Restart
+
+text_sensor:
+# to find the ble mac address set debug level VERBOSE
+#  - platform: ble_scanner
+#    name: "BLE Devices Scanner"
+
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+      disabled_by_default: true
+      entity_category: diagnostic
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/Brussels
