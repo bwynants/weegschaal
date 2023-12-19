@@ -4,11 +4,31 @@
 
 ### how to setup
 
+Add a reference to the code on github
+
+    external_components:
+      - source:
+          type: git
+          url: https://github.com/bwynants/weegschaal
+          ref: main
+        components: [ medisana_bs444 ]
+
+or local on your esphome directory
+
+    external_components:
+      - source: 
+          type: local
+          path: components
+
+add esphome ble tracker component
+
     esp32_ble_tracker:
       scan_parameters:
-        interval: 30000ms
+        interval: 1100ms
         window: 1100ms
         active: false
+
+add esphome ble client component and set the correct MAC address
 
     ble_client:
       - mac_address: "00:00:00:00:00:00"
@@ -50,7 +70,7 @@
 
 up till 8 users can be specified....
 
-## make sure time is specified
+## add homeassistant time
 
     time:
       - platform: homeassistant
