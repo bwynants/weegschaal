@@ -1,6 +1,6 @@
 # weegschaal
 
-## Use Medisana BS444 scale with ESPHome in HomeAssistant
+## Use Medisana BS444 scale with ESPHome on ESP32 in Home Assistant
 
 ### how to setup
 
@@ -75,3 +75,11 @@ up till 8 users can be specified....
     time:
       - platform: homeassistant
         id: homeassistant_time
+
+## support
+
+propably more medisana scales work BS410/BS430/BS440, but i only have the BS444 to test
+
+## credits
+   
+based on reverse engineering from https://github.com/keptenkurk/BS440
