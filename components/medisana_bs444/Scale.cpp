@@ -17,7 +17,7 @@ namespace medisana_bs444
 
   esp32_ble::ESPBTUUID Char_command = esp32_ble::ESPBTUUID::from_raw("00008a81-0000-1000-8000-00805f9b34fb"); // command register handle 31
 
-  time_t time_offset = 1262304000;
+  time_t time_offset = 0; // BS430 test 1262304000;
 
   /*******************************************************************************/
   std::string timeAsString(time_t time)
