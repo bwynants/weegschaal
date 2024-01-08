@@ -105,6 +105,7 @@ namespace medisana_bs444
     {
     case ESP_GATTC_OPEN_EVT:
     {
+      ESP_LOGD(TAG, "ESP_GATTC_OPEN_EVT!");
       if (param->open.status == ESP_GATT_OK)
       {
         ESP_LOGI(TAG, "Connected successfully!");
@@ -114,6 +115,7 @@ namespace medisana_bs444
 
     case ESP_GATTC_DISCONNECT_EVT:
     {
+      ESP_LOGD(TAG, "ESP_GATTC_DISCONNECT_EVT!");
       this->node_state = esp32_ble_tracker::ClientState::IDLE;
       if (mPerson.valid)
       {
@@ -182,12 +184,11 @@ namespace medisana_bs444
         {
           ESP_LOGE(TAG, "Error sending write request for sensor, status=%d", status);
         }
-        ESP_LOGD(TAG, "registering =%d", chr->handle);
+        ESP_LOGD(TAG, "registering %d=%d", i, chr->handle);
         mCharacteristicHandles[i] = chr->handle;
       }
       ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_string().c_str());
 
-      // Write a 0x50 to the write characteristic.
       auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
       if (write_chr == nullptr)
       {
@@ -202,7 +203,10 @@ namespace medisana_bs444
       auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                    write_chr->handle, sizeof(byteArray), (uint8_t *)byteArray,
                                                    ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
-
+      if (status)
+      {
+        ESP_LOGE(TAG, "Error sending datetimestap, status=%d", status);
+      }
       this->node_state = esp32_ble_tracker::ClientState::ESTABLISHED;
       break;
     }
@@ -235,21 +239,29 @@ namespace medisana_bs444
       else if (mCharacteristicHandles[1] == param->notify.handle)
       {
         auto data = Weight::decode(param->notify.value);
-        if (data.timestamp < now())
+        if (data.timestamp <= now())
         {
           ESP_LOGD(TAG, "data %s:", data.toString().c_str());
           if (!mWeight.valid || (mWeight < data))
             mWeight = data;
         }
+        else
+        {
+          ESP_LOGD(TAG, "Skipped future event!");
+        }
       }
       else if (mCharacteristicHandles[2] == param->notify.handle)
       {
         auto data = Body::decode(param->notify.value);
-        if (data.timestamp < now())
+        if (data.timestamp <= now())
         {
           ESP_LOGD(TAG, "data %s:", data.toString().c_str());
           if (!mBody.valid || (mBody < data))
             mBody = data;
+        }
+        else
+        {
+          ESP_LOGD(TAG, "Skipped future event!");
         }
       }
       break;
