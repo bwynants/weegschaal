@@ -94,7 +94,7 @@ namespace medisana_bs444
 #endif
     {
       ESP_LOGI(TAG, "Time unknown!");
-      return time_offset + millis() / 1000; // some stupid value.....
+      return millis() / 1000; // some stupid value.....
     }
   }
 
@@ -198,7 +198,7 @@ namespace medisana_bs444
       }
 
       uint8_t byteArray[5] = {2, 0, 0, 0, 0};
-      convertTimestampToLittleEndian(now() - time_offset, &byteArray[1]);
+      convertTimestampToLittleEndian(now() - (use_timeoffset_ ? time_offset : 0), &byteArray[1]);
 
       auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                    write_chr->handle, sizeof(byteArray), (uint8_t *)byteArray,
@@ -238,7 +238,7 @@ namespace medisana_bs444
       }
       else if (mCharacteristicHandles[1] == param->notify.handle)
       {
-        auto data = Weight::decode(param->notify.value);
+        auto data = Weight::decode(param->notify.value, use_timeoffset_);
         if (data.timestamp <= now())
         {
           ESP_LOGD(TAG, "data %s:", data.toString().c_str());
@@ -252,7 +252,7 @@ namespace medisana_bs444
       }
       else if (mCharacteristicHandles[2] == param->notify.handle)
       {
-        auto data = Body::decode(param->notify.value);
+        auto data = Body::decode(param->notify.value, use_timeoffset_);
         if (data.timestamp <= now())
         {
           ESP_LOGD(TAG, "data %s:", data.toString().c_str());

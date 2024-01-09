@@ -17,7 +17,8 @@ namespace medisana_bs444
 
   esp32_ble::ESPBTUUID Char_command = esp32_ble::ESPBTUUID::from_raw("00008a81-0000-1000-8000-00805f9b34fb"); // command register handle 31
 
-  time_t time_offset = 0; // BS430 test 1262304000;
+  // timeoffset used by BS410 and BS444 
+  time_t time_offset = 1262304000;
 
   /*******************************************************************************/
   std::string timeAsString(time_t time)
@@ -25,16 +26,21 @@ namespace medisana_bs444
     return ESPTime::from_epoch_local(time).strftime("%Y-%m-%dT%H:%M:%S");
   }
 
-  time_t sanitize_timestamp(time_t timestamp)
+  time_t sanitize_timestamp(time_t timestamp, bool use_timeoffset)
   {
     time_t retTS = 0;
+    if (use_timeoffset)
+    {
+      // Fail-safe: The timestamp will only be sanitized if it will be
+      // below below the maximum unix timestamp (2147483647).
+      if (timestamp + time_offset < std::numeric_limits<time_t>::max())
+        retTS = timestamp + time_offset;
+      else
+        retTS = timestamp;
 
-    // Fail-safe: The timestamp will only be sanitized if it will be
-    // below below the maximum unix timestamp (2147483647).
-    if (timestamp + time_offset < std::numeric_limits<time_t>::max())
-      retTS = timestamp + time_offset;
+    }
     else
-      retTS = timestamp;
+      retTS= timestamp;
 
     // If the non-sanitized timestamp is already above the maximum unix timestamp,
     // 0 will be taken instead.
@@ -119,7 +125,7 @@ namespace medisana_bs444
     return str.str();
   }
 
-  Weight Weight::decode(const uint8_t *values)
+  Weight Weight::decode(const uint8_t *values, bool useTimeoffset)
   {
     /*
       decodeWeight
@@ -146,7 +152,7 @@ namespace medisana_bs444
 
     result.valid = (values[0] == 0x1d);
     result.weight = ((values[2] << 8) | values[1]) / 100.0;
-    result.timestamp = sanitize_timestamp((values[8] << 24) | (values[7] << 16) | (values[6] << 8) | values[5]);
+    result.timestamp = sanitize_timestamp((values[8] << 24) | (values[7] << 16) | (values[6] << 8) | values[5], useTimeoffset);
     result.person = values[13];
 
     return result;
@@ -170,7 +176,7 @@ namespace medisana_bs444
     return str.str();
   }
 
-  Body Body::decode(const uint8_t *values)
+  Body Body::decode(const uint8_t *values, bool useTimeoffset)
   {
     /*
       decodeBody
@@ -199,7 +205,7 @@ namespace medisana_bs444
     Body result;
 
     result.valid = (values[0] == 0x6f);
-    result.timestamp = sanitize_timestamp((values[4] << 24) | (values[3] << 16) | (values[2] << 8) | values[1]);
+    result.timestamp = sanitize_timestamp((values[4] << 24) | (values[3] << 16) | (values[2] << 8) | values[1], useTimeoffset);
     result.person = (values[5]);
     result.kcal = (values[7] << 8 | values[6]);
     result.fat = (0x0fff & (values[9] << 8 | values[8])) / 10.0;

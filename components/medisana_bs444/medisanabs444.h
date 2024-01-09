@@ -84,6 +84,7 @@ namespace medisana_bs444
 
     void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
+    void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
     void set_weight(uint8_t i, sensor::Sensor *sensor) { weight_sensor_[i] = sensor; }
     void set_bmi(uint8_t i, sensor::Sensor *sensor) { bmi_sensor_[i] = sensor; }
     void set_kcal(uint8_t i, sensor::Sensor *sensor) { kcal_sensor_[i] = sensor; }
@@ -96,7 +97,8 @@ namespace medisana_bs444
 #ifdef USE_TIME
     optional<time::RealTimeClock *> time_id_{};
 #endif
-
+    bool use_timeoffset_ = false;
+    
   protected:
     sensor::Sensor *weight_sensor_[9]{nullptr};
     sensor::Sensor *bmi_sensor_[9]{nullptr};

@@ -37,6 +37,7 @@ add esphome ble client component and set the correct MAC address
     sensor:
       - platform: medisana_bs444
         ble_client_id: medisababs44_ble_id
+        timeoffset: true # BS410 and BS444 needs timeoffset, set to false for other scales
         weight_1:
           name: "Weight User 1"
         kcal_1:

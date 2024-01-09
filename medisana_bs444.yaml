@@ -59,6 +59,7 @@ ble_client:
 sensor:
   - platform: medisana_bs444
     ble_client_id: medisababs44_ble_id
+    timeoffset: true # BS444 needs timeoffset
     weight_1:
       name: "Weight user 1"
     kcal_1:
