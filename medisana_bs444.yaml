@@ -13,7 +13,7 @@ esphome:
   friendly_name: Medisana BS444
   project:
     name: bwynants.$device_name
-    version: "0.8"
+    version: "0.9"
 
 esp32:
   board: esp32dev
