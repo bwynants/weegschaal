@@ -1,9 +1,9 @@
 substitutions:
   device_name: "weegschaal"
   init: 'BS444Scale::instance();'
-  # set number of users in BS444Scale.h
-  user_0: Brigitte
-  user_1: Bert
+  # up till 8 users can be used
+  user_0: Jane
+  user_1: Brian
 
 esphome:
   name: ${device_name}
@@ -14,7 +14,7 @@ esphome:
     - lib/scale/
   project:
     name: bwynants.$device_name
-    version: "0.3"
+    version: "0.4"
 
 esp32:
   board: esp32dev

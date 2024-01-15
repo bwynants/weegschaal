@@ -38,7 +38,7 @@
 /*
  * The numers in use on the scale
  */
-static const uint8_t kMaxUsers = 2;
+static const uint8_t kMaxUsers = 8;
 static const uint8_t kSleepTimeBetweenScans = 30;
 static const char *TAG = "BS444Scale";
 
