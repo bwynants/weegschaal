@@ -26,7 +26,7 @@ namespace medisana_bs444
   // Assuming time_offset is a constant defined somewhere in the code
   extern time_t time_offset;
 
-  time_t sanitize_timestamp(time_t timestamp);
+  time_t sanitize_timestamp(time_t timestamp, bool useTimeoffset);
 
   void convertTimestampToLittleEndian(time_t timestamp, uint8_t *byteArray);
 
@@ -68,7 +68,7 @@ namespace medisana_bs444
     double weight;
 
     std::string toString(const Person &person = Person());
-    static Weight decode(const uint8_t *values);
+    static Weight decode(const uint8_t *values, bool useTimeoffset);
 
     friend bool operator<(const Weight &l, const Weight &r)
     {
@@ -96,7 +96,7 @@ namespace medisana_bs444
     double muscle;
     double bone;
     std::string toString();
-    static Body decode(const uint8_t *values);
+    static Body decode(const uint8_t *values, bool useTimeoffset);
 
     friend bool operator<(const Body &l, const Body &r)
     {

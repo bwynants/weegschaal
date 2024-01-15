@@ -24,8 +24,9 @@ CONF_FAT="fat"
 CONF_TBW="tbw"
 CONF_MUSCLE="muscle"
 CONF_BONE="bone"
+CONF_TIME_OFFSET = "timeoffset"
 
-DEPENDENCIES = ['esp32', "ble_client"]
+DEPENDENCIES = ['esp32', "ble_client", "time"]
 
 medisana_bs444_ns = cg.esphome_ns.namespace("medisana_bs444")
 MedisanaBS444 = medisana_bs444_ns.class_(
@@ -99,6 +100,7 @@ CONFIG_SCHEMA = cv.All(
         {
             cv.GenerateID(): cv.declare_id(MedisanaBS444),
             cv.GenerateID(CONF_TIME_ID): cv.use_id(time.RealTimeClock),
+            cv.Optional(CONF_TIME_OFFSET, default=True): cv.boolean,
             cv.Optional(CONF_WEIGHT): sensor.sensor_schema(
                 unit_of_measurement=UNIT_KILOGRAM,
                 icon=ICON_SCALE_BATHROOM,
@@ -120,6 +122,7 @@ async def to_code(config):
     if CONF_TIME_ID in config:
         time_ = await cg.get_variable(config[CONF_TIME_ID])
         cg.add(var.set_time_id(time_))
+    cg.add(var.use_timeoffset(config[CONF_TIME_OFFSET]))
 
     for x in range(1, 8):
         CONF_VAL = "%s_%s" %(CONF_WEIGHT,x)
