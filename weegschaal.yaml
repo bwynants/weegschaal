@@ -1,20 +1,20 @@
 substitutions:
   device_name: "weegschaal"
-  init: 'BS444Scale::instance();'
   # up till 8 users can be used
   user_0: Jane
   user_1: Brian
 
+external_components:
+  - source: 
+      type: local
+      path: components
+
 esphome:
   name: ${device_name}
   friendly_name: Weegschaal
-  libraries:
-    - "ESP32 BLE Arduino"
-  includes:
-    - lib/scale/
   project:
     name: bwynants.$device_name
-    version: "0.4"
+    version: "0.9.0"
 
 esp32:
   board: esp32dev
@@ -48,104 +48,40 @@ wifi:
 #  port: 80
 
 
-custom_component:
-- lambda: |-
-    auto theBS444Scale = ${init}
-    return {theBS444Scale};
+medisana_bs444:
+    timeoffset: false # BS444 needs timeoffset
 
 sensor:
-  - platform: custom
-    lambda: |-
-      auto theBS444Scale = ${init}
-      return {
-        theBS444Scale->sensor_weights[0],
-        theBS444Scale->sensor_weights[1],
-        theBS444Scale->sensor_kcal[0],
-        theBS444Scale->sensor_kcal[1],
-        theBS444Scale->sensor_fat[0],
-        theBS444Scale->sensor_fat[1],
-        theBS444Scale->sensor_tbw[0],
-        theBS444Scale->sensor_tbw[1],
-        theBS444Scale->sensor_muscle[0],
-        theBS444Scale->sensor_muscle[1],
-        theBS444Scale->sensor_bone[0],
-        theBS444Scale->sensor_bone[1],
-        theBS444Scale->sensor_bmi[0],
-        theBS444Scale->sensor_bmi[1]
-      };
-    sensors:
-      - name: Weight ${user_0}
-        icon: mdi:monitor_weight
-        unit_of_measurement: kg
-        accuracy_decimals: 1
-        state_class: measurement
-        device_class: weight
-      - name: Weight ${user_1}
-        icon: mdi:monitor_weight
-        unit_of_measurement: kg
-        accuracy_decimals: 1
-        state_class: measurement
-        device_class: weight
-      - name: kcal ${user_0}
-        icon: mdi:food-apple
-        unit_of_measurement: "kcal"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: kcal ${user_1}
-        icon: mdi:food-apple
-        unit_of_measurement: "kcal"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Fat ${user_0}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Fat ${user_1}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Water ${user_0}
-        icon: mdi:water-percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Water ${user_1}
-        icon: mdi:water-percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Muscle ${user_0}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Muscle ${user_1}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Bone ${user_0}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: Bone ${user_1}
-        icon: mdi:percent
-        unit_of_measurement: "%"
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: BMI ${user_0}
-        icon: mdi:scale-bathroom
-        unit_of_measurement: ""
-        accuracy_decimals: 1
-        state_class: measurement
-      - name: BMI ${user_1}
-        icon: mdi:scale-bathroom
-        unit_of_measurement: ""
-        accuracy_decimals: 1
-        state_class: measurement
+  - platform: medisana_bs444
+    weight_1:
+      name: Weight {user_0}
+    kcal_1:
+      name: kcal {user_0}
+    fat_1:
+      name: Fat {user_0}
+    tbw_1:
+      name: Water {user_0}
+    muscle_1:
+      name: Muscle {user_0}
+    bone_1:
+      name: Bone {user_0}
+    bmi_1:
+      name: BMI {user_0}
+
+    weight_2:
+      name: Weight {user_1}
+    kcal_2:
+      name: kcal {user_1}
+    fat_2:
+      name: Fat {user_1}
+    tbw_2:
+      name: Water {user_1}
+    muscle_2:
+      name: Muscle {user_1}
+    bone_2:
+      name: Bone {user_1}
+    bmi_2:
+      name: BMI {user_1}
 
   - platform: uptime
     id: uptime_sensor
