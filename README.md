@@ -2,6 +2,8 @@
 
 ## Use Medisana BS444 scale with ESPHome on ESP32 in Home Assistant
 
+BS430 users have a look at https://github.com/bwynants/weegschaal/tree/ESP32-BLE-Arduino
+
 ### how to setup
 
 Add a reference to the code on github
