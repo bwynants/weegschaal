@@ -47,15 +47,10 @@
  *
  */
 
-/*
- * The numers in use on the scale
- */
 namespace esphome
 {
 namespace medisana_bs444
 {
-
-  // https://www.leef.nl/kennisbank/weegschalen-en-vetmeters
 
   class MedisanaBS444 : public Component, public esphome::ble_client::BLEClientNode
   {
@@ -98,7 +93,8 @@ namespace medisana_bs444
     optional<time::RealTimeClock *> time_id_{};
 #endif
     bool use_timeoffset_ = false;
-    
+
+    u_int32_t registered_notifications_ = 0;
   protected:
     sensor::Sensor *weight_sensor_[9]{nullptr};
     sensor::Sensor *bmi_sensor_[9]{nullptr};

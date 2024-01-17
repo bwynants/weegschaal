@@ -101,13 +101,6 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(MedisanaBS444),
             cv.GenerateID(CONF_TIME_ID): cv.use_id(time.RealTimeClock),
             cv.Optional(CONF_TIME_OFFSET, default=True): cv.boolean,
-            cv.Optional(CONF_WEIGHT): sensor.sensor_schema(
-                unit_of_measurement=UNIT_KILOGRAM,
-                icon=ICON_SCALE_BATHROOM,
-                accuracy_decimals=1,
-                device_class=DEVICE_CLASS_WEIGHT,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
         }
     )
     .extend(MEASUREMENTS)

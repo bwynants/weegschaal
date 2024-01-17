@@ -160,9 +160,9 @@ namespace medisana_bs444
       mPerson = Person();
       mBody = Body();
       mWeight = Weight();
-      for (uint8_t i = 0; i < 3; i++)
+      registered_notifications_ = 0;
+      for (const auto &characteristic: mCharacteristics)
       {
-        const auto &characteristic = mCharacteristics[i];
         auto *chr = this->parent()->get_characteristic(mServiceUUID, characteristic);
         if (chr == nullptr)
         {
@@ -170,44 +170,20 @@ namespace medisana_bs444
                    characteristic.to_string().c_str());
           break;
         }
+
         auto status_notify = esp_ble_gattc_register_for_notify(this->parent()->get_gattc_if(), this->parent()->get_remote_bda(), chr->handle);
         if (status_notify)
         {
           ESP_LOGE(TAG, "esp_ble_gattc_register_for_notify failed, status=%d", status_notify);
         }
-        // send indicationOn for this characteristic
-        const uint8_t indicationOn[] = {0x2, 0x0};
-        auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
-                                                     chr->handle + 1, sizeof(indicationOn), (uint8_t *)indicationOn,
-                                                     ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
-        if (status)
+        else
         {
-          ESP_LOGE(TAG, "Error sending write request for sensor, status=%d", status);
+          mCharacteristicHandles[registered_notifications_] = chr->handle;
+          registered_notifications_++;
         }
-        ESP_LOGD(TAG, "registering %d=%d", i, chr->handle);
-        mCharacteristicHandles[i] = chr->handle;
       }
+
       ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_string().c_str());
-
-      auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
-      if (write_chr == nullptr)
-      {
-        ESP_LOGE(TAG, "No sensor write characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
-                 Char_command.to_string().c_str());
-        break;
-      }
-
-      uint8_t byteArray[5] = {2, 0, 0, 0, 0};
-      convertTimestampToLittleEndian(now() - (use_timeoffset_ ? time_offset : 0), &byteArray[1]);
-
-      auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
-                                                   write_chr->handle, sizeof(byteArray), (uint8_t *)byteArray,
-                                                   ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
-      if (status)
-      {
-        ESP_LOGE(TAG, "Error sending datetimestap, status=%d", status);
-      }
-      this->node_state = esp32_ble_tracker::ClientState::ESTABLISHED;
       break;
     }
 
@@ -223,14 +199,59 @@ namespace medisana_bs444
       }
       break;
     }
+
     case ESP_GATTC_REG_FOR_NOTIFY_EVT:
     {
       ESP_LOGD(TAG, "ESP_GATTC_REG_FOR_NOTIFY_EVT!");
+      if (--registered_notifications_ == 0)
+      { 
+        // all notify requests are handled
+        this->node_state = esp32_ble_tracker::ClientState::ESTABLISHED;
+
+        const uint8_t indicationOn[] = {0x2, 0x0};
+        //for (uint8_t i = 0; i < 3; i++)
+        for(const auto&handle :mCharacteristicHandles)
+        {
+          // send indicate for these handles
+          auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
+                                                       handle + 1, sizeof(indicationOn), (uint8_t *)indicationOn,
+                                                       ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+          if (status)
+          {
+            ESP_LOGE(TAG, "Error sending write request for characteristic handle, status=%d", status);
+          }
+          else
+          {
+            ESP_LOGD(TAG, "notification on for characteristic handle 0x%x", handle);
+          }
+        }
+
+        auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
+        if (write_chr == nullptr)
+        {
+          ESP_LOGE(TAG, "No write characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
+                   Char_command.to_string().c_str());
+          break;
+        }
+
+        uint8_t byteArray[5] = {2, 0, 0, 0, 0};
+        convertTimestampToLittleEndian(now() - (use_timeoffset_ ? time_offset : 0), &byteArray[1]);
+
+        auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
+                                                     write_chr->handle, sizeof(byteArray), (uint8_t *)byteArray,
+                                                     ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+        if (status)
+        {
+          ESP_LOGE(TAG, "Error sending datetimestap, status=%d", status);
+        }
+        ESP_LOGD(TAG, "request to send data sent");
+      }
       break;
     }
+
     case ESP_GATTC_NOTIFY_EVT:
     {
-      ESP_LOGD(TAG, "ESP_GATTC_NOTIFY_EVT! %d, %d", param->notify.handle, param->notify.value_len);
+      ESP_LOGD(TAG, "ESP_GATTC_NOTIFY_EVT! 0x%x, %d", param->notify.handle, param->notify.value_len);
       if (mCharacteristicHandles[0] == param->notify.handle)
       {
         mPerson = Person::decode(param->notify.value);
