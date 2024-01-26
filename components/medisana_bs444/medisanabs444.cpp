@@ -371,7 +371,6 @@ namespace medisana_bs444
   void MedisanaBS444::dump_config()
   {
     ESP_LOGCONFIG(TAG, "MedisanaBS444:");
-    ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str().c_str());
     for (uint8_t i = 0; i < 8; i++)
     {
       ESP_LOGCONFIG(TAG, "User_%d:", i);
