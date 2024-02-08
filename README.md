@@ -8,7 +8,9 @@ We should not use "ESP32 BLE Arduino" as it does not scan asyncrounous and uses 
 
 ### how to setup
 
-Add a reference to the code on github
+#### add the code to the yaml
+
+add a reference to the code on github
 
     external_components:
       - source:
@@ -24,12 +26,12 @@ or local on your esphome directory
           type: local
           path: components
 
-define the component
+#### define the component
 
 	medisana_bs444:
 	    timeoffset: false # BS410 and BS444 needs timeoffset, set to false for other scales
 
-define de sensors
+#### define de sensors
 
     sensor:
       - platform: medisana_bs444
@@ -63,18 +65,25 @@ define de sensors
         bmi_2:
           name: "BMI User 2"
 
-
 up till 8 users can be specified....
 
-## add homeassistant time
+#### add homeassistant time
 
     time:
       - platform: homeassistant
         id: homeassistant_time
 
+#### define, an optional, switch to disable the scanning
+
+    switch:
+      - platform: medisana_bs444
+        scan: 
+          restore_mode: RESTORE_DEFAULT_ON
+          name: "Scan"
+
 ## support
 
-propably more medisana scales work BS410/BS430/BS440, but i only have the BS444 to test
+propably more medisana scales work BS410/BS430/BS440, but I only have the BS444 to test
 
 ## credits
    

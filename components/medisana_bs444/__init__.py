@@ -1,16 +1,16 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import time
+from esphome.components import (
+    time,
+)
 from esphome.const import (
     CONF_ID,
     CONF_TIME_ID,
 )
 
-
 CODEOWNERS = ["@bwynants"]
 
 MULTI_CONF = True
-AUTO_LOAD = ["sensor"]
 
 CONF_MedisanaBS444_ID = "MedisanaBS444_id"
 CONF_TIME_OFFSET = "timeoffset"

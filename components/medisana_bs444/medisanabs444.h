@@ -1,11 +1,13 @@
 #pragma once
 
 #ifdef USE_ESP32
-
 #include "esphome.h"
 #include "BLEDevice.h"
-#include "Scale.h"
 #include <vector>
+
+#ifdef USE_SWITCH
+#include "esphome/components/switch/switch.h"
+#endif
 
 #ifdef USE_TIME
 #include "esphome/components/time/real_time_clock.h"
@@ -81,14 +83,13 @@ namespace medisana_bs444
     uint32_t bletime = millis() + 1000;
 
   public:
-    MedisanaBS444();
+    MedisanaBS444() = default;
 
   public:
     void dump_config() override;
 
-#ifdef USE_TIME
-    void set_time_id(time::RealTimeClock *time_id);
-#endif
+  protected:
+    time_t now();
 
     // we found a device
     void onResult(BLEAdvertisedDevice &advertisedDevice);
@@ -106,11 +107,19 @@ namespace medisana_bs444
 
     void bleClient_loop();
 
+#ifdef USE_TIME
+  public:
+    void set_time_id(time::RealTimeClock *time_id);
   protected:
-    time_t now();
+    optional<time::RealTimeClock *> time_id_{};
+#endif
 
   public:
     void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
+  protected:
+    bool use_timeoffset_ = false;
+
+  public:
     void set_weight(uint8_t i, sensor::Sensor *sensor) { weight_sensor_[i] = sensor; }
     void set_bmi(uint8_t i, sensor::Sensor *sensor) { bmi_sensor_[i] = sensor; }
     void set_kcal(uint8_t i, sensor::Sensor *sensor) { kcal_sensor_[i] = sensor; }
@@ -118,21 +127,18 @@ namespace medisana_bs444
     void set_tbw(uint8_t i, sensor::Sensor *sensor) { tbw_sensor_[i] = sensor; }
     void set_muscle(uint8_t i, sensor::Sensor *sensor) { muscle_sensor_[i] = sensor; }
     void set_bone(uint8_t i, sensor::Sensor *sensor) { bone_sensor_[i] = sensor; }
-
   protected:
-#ifdef USE_TIME
-    optional<time::RealTimeClock *> time_id_{};
+    sensor::Sensor *weight_sensor_[8]{nullptr};
+    sensor::Sensor *bmi_sensor_[8]{nullptr};
+    sensor::Sensor *kcal_sensor_[8]{nullptr};
+    sensor::Sensor *fat_sensor_[8]{nullptr};
+    sensor::Sensor *tbw_sensor_[8]{nullptr};
+    sensor::Sensor *muscle_sensor_[8]{nullptr};
+    sensor::Sensor *bone_sensor_[8]{nullptr};
+
+#ifdef USE_SWITCH
+  SUB_SWITCH(scan)
 #endif
-    bool use_timeoffset_ = false;
-
-  protected:
-    sensor::Sensor *weight_sensor_[9]{nullptr};
-    sensor::Sensor *bmi_sensor_[9]{nullptr};
-    sensor::Sensor *kcal_sensor_[9]{nullptr};
-    sensor::Sensor *fat_sensor_[9]{nullptr};
-    sensor::Sensor *tbw_sensor_[9]{nullptr};
-    sensor::Sensor *muscle_sensor_[9]{nullptr};
-    sensor::Sensor *bone_sensor_[9]{nullptr};
   };
 } // namespace medisana_bs444
 } // namespace esphome

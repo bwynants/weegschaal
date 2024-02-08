@@ -1,5 +1,6 @@
 #include "medisanabs444.h"
 #ifdef USE_ESP32
+#include "Scale.h"
 
 namespace esphome
 {
@@ -44,11 +45,6 @@ namespace medisana_bs444
   const uint8_t kMaxUsers = 8;
   const uint8_t kSleepTimeBetweenScans = 30;
   const char *TAG = "BS4xxScale";
-
-  MedisanaBS444::MedisanaBS444() : Component()
-  {
-    ESP_LOGE(TAG, "MedisanaBS444 constructed");
-  }
 
   // we found a device
   void MedisanaBS444::onResult(BLEAdvertisedDevice &advertisedDevice)
@@ -113,31 +109,42 @@ namespace medisana_bs444
 
   void MedisanaBS444::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
   {
-    ESP_LOGD(TAG, "Notify callback for characteristic %s of data length %d data:", pBLERemoteCharacteristic->getUUID().toString().c_str(), pBLERemoteCharacteristic->getHandle(), length);
+    ESP_LOGV(TAG, "Notify callback for characteristic %s of data length %d data:", pBLERemoteCharacteristic->getUUID().toString().c_str(), pBLERemoteCharacteristic->getHandle(), length);
     if (pBLERemoteCharacteristic->getUUID().equals(Char_person))
     {
       mPerson = Person::decode(pData);
-      ESP_LOGD(TAG, "data %s:", mPerson.toString().c_str());
+      ESP_LOGD(TAG, "Person data %s:", mPerson.toString().c_str());
     }
     else if (pBLERemoteCharacteristic->getUUID().equals(Char_weight))
     {
       auto data = Weight::decode(pData, use_timeoffset_);
+      ESP_LOGD(TAG, "Weight data %s:", data.toString().c_str());
+      
       if (data.timestamp <= now())
       {
-        ESP_LOGD(TAG, "data %s:", data.toString().c_str());
         if (!mWeight.valid || (mWeight < data))
           mWeight = data;
+        else
+          ESP_LOGD(TAG, "skipped older");
+
       }
+      else
+        ESP_LOGD(TAG, "skipped future");
     }
     else if (pBLERemoteCharacteristic->getUUID().equals(Char_body))
     {
       auto data = Body::decode(pData, use_timeoffset_);
+      ESP_LOGD(TAG, "Body data %s:", data.toString().c_str());
+      
       if (data.timestamp <= now())
       {
-        ESP_LOGD(TAG, "data %s:", data.toString().c_str());
         if (!mBody.valid || (mBody < data))
           mBody = data;
+        else
+          ESP_LOGD(TAG, "skipped older");
       }
+      else
+        ESP_LOGD(TAG, "skipped future");
     }
   }
 
@@ -349,29 +356,40 @@ namespace medisana_bs444
     {
       // we do nothing with the connection, we only wait for messages in the callback
     }
-    else if (mDoScan)
+    else
     {
-      ESP_LOGI(TAG, "starting scan in 30 seconds.");
-      // start a next scan in 30 time
-      mDoScan = false;
-      mScan = true;
+  #ifdef USE_SWITCH
+      if ((this->scan_switch_ == nullptr) || this->scan_switch_->state)
+  #endif
+      {
+        if (mDoScan)
+        {
+          ESP_LOGI(TAG, "Starting scan in 30 seconds.");
+          // start a next scan in 30 time
+          mDoScan = false;
+          mScan = true;
 
-      bletime = millis() + kSleepTimeBetweenScans * 1000; // delay next itertation
-    }
-    else if (mScan)
-    {
-      mScan = false;
-      mDoScan = true; // restarting a delayed scan whenever possible
-                      // If the connection is released and mDoScan is true, start scanning
-      ESP_LOGI(TAG, "Restarting scan.");
-      BLEDevice::getScan()->start(1, false);
+          bletime = millis() + kSleepTimeBetweenScans * 1000; // delay next itertation
+        }
+        if (mScan)
+        {
+          mScan = false;
+          mDoScan = true; // restarting a delayed scan whenever possible
+                          // If the connection is released and mDoScan is true, start scanning
+          ESP_LOGI(TAG, "Restarting scan.");
+          BLEDevice::getScan()->start(1, false);
+        }
+      }
     }
   }
 
   void MedisanaBS444::dump_config()
   {
     ESP_LOGCONFIG(TAG, "MedisanaBS444:");
-    for (uint8_t i = 0; i < 8; i++)
+#ifdef USE_SWITCH
+    LOG_SWITCH("  ", "ScanSwitch", this->scan_switch_);
+#endif
+    for (uint8_t i = 0; i < kMaxUsers; i++)
     {
       ESP_LOGCONFIG(TAG, "User_%d:", i);
       if (this->weight_sensor_[i])

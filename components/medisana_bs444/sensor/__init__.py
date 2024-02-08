@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor, time
+from esphome.components import sensor
 
 from esphome.const import (
     STATE_CLASS_MEASUREMENT,
@@ -15,7 +15,7 @@ from esphome.const import (
     DEVICE_CLASS_WEIGHT,
 )
 
-from . import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID
+from .. import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID
 
 UNIT_KILOCALORIERS="kcal"
 
@@ -26,9 +26,6 @@ CONF_TBW="tbw"
 CONF_MUSCLE="muscle"
 CONF_BONE="bone"
 CONF_TIME_OFFSET = "timeoffset"
-
-DEPENDENCIES = ['esp32', "time"]
-
 
 # Generate schema for 8 persons
 MEASUREMENTS = cv.Schema({
