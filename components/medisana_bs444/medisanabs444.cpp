@@ -38,20 +38,13 @@ namespace medisana_bs444
    *
    */
 
-  /*
-   * The numers in use on the scale
-   */
   static const char *TAG = "MedisanaBS444";
-
-  MedisanaBS444::MedisanaBS444() : Component()
-  {
-    ESP_LOGE(TAG, "MedisanaBS444 constructed");
-  }
 
   void MedisanaBS444::dump_config()
   {
     ESP_LOGCONFIG(TAG, "MedisanaBS444:");
     ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str().c_str());
+    ESP_LOGCONFIG(TAG, "  timeoffset         : %d", this->use_timeoffset_);
     for (uint8_t i = 0; i < 8; i++)
     {
       ESP_LOGCONFIG(TAG, "User_%d:", i);
@@ -75,8 +68,6 @@ namespace medisana_bs444
 #ifdef USE_TIME
   void MedisanaBS444::set_time_id(time::RealTimeClock *time_id)
   {
-    ESPTime now = time_id->now();
-    ESP_LOGI(TAG, "setting time %ld!", time_id->now().timestamp);
     this->time_id_ = time_id;
   }
 #endif
@@ -84,18 +75,10 @@ namespace medisana_bs444
   time_t MedisanaBS444::now()
   {
 #ifdef USE_TIME
-    if (this->time_id_.has_value())
-    {
-      auto *time_id = *this->time_id_;
-      ESPTime now = time_id->now();
-      return time_id->now().timestamp;
-    }
-    else
+    if (this->time_id_)
+      return time_id_->now().timestamp;
 #endif
-    {
-      ESP_LOGI(TAG, "Time unknown!");
-      return millis() / 1000; // some stupid value.....
-    }
+    return millis() / 1000; // some stupid value.....
   }
 
   void MedisanaBS444::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
@@ -255,36 +238,38 @@ namespace medisana_bs444
       if (mCharacteristicHandles[0] == param->notify.handle)
       {
         mPerson = Person::decode(param->notify.value);
-        ESP_LOGD(TAG, "data %s:", mPerson.toString().c_str());
+        ESP_LOGI(TAG, "data person %s:", mPerson.toString().c_str());
       }
       else if (mCharacteristicHandles[1] == param->notify.handle)
       {
         auto data = Weight::decode(param->notify.value, use_timeoffset_);
         if (data.timestamp <= now())
         {
-          ESP_LOGD(TAG, "data %s:", data.toString().c_str());
+          ESP_LOGI(TAG, "data weight %s:", data.toString().c_str());
           if (!mWeight.valid || (mWeight < data))
             mWeight = data;
+          else
+            ESP_LOGI(TAG, "Skipped weight!");
         }
         else
-        {
-          ESP_LOGD(TAG, "Skipped future event!");
-        }
+          ESP_LOGE(TAG, "Skipped future event!");
       }
       else if (mCharacteristicHandles[2] == param->notify.handle)
       {
         auto data = Body::decode(param->notify.value, use_timeoffset_);
         if (data.timestamp <= now())
         {
-          ESP_LOGD(TAG, "data %s:", data.toString().c_str());
+          ESP_LOGI(TAG, "data body %s:", data.toString().c_str());
           if (!mBody.valid || (mBody < data))
             mBody = data;
+          else
+            ESP_LOGI(TAG, "Skipped body!");
         }
         else
-        {
-          ESP_LOGD(TAG, "Skipped future event!");
-        }
+          ESP_LOGE(TAG, "Skipped future event!");
       }
+      else 
+        ESP_LOGE(TAG, "Skipped future event!");
       break;
     }
 

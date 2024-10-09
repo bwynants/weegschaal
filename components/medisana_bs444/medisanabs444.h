@@ -67,19 +67,16 @@ namespace medisana_bs444
     Body mBody;
 
   public:
-    MedisanaBS444();
+    MedisanaBS444() = default;
 
     void dump_config() override;
 
-#ifdef USE_TIME
-    void set_time_id(time::RealTimeClock *time_id);
-#endif
-
+  protected:
     time_t now();
 
     void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
-    void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
+  public:
     void set_weight(uint8_t i, sensor::Sensor *sensor) { weight_sensor_[i] = sensor; }
     void set_bmi(uint8_t i, sensor::Sensor *sensor) { bmi_sensor_[i] = sensor; }
     void set_kcal(uint8_t i, sensor::Sensor *sensor) { kcal_sensor_[i] = sensor; }
@@ -87,22 +84,29 @@ namespace medisana_bs444
     void set_tbw(uint8_t i, sensor::Sensor *sensor) { tbw_sensor_[i] = sensor; }
     void set_muscle(uint8_t i, sensor::Sensor *sensor) { muscle_sensor_[i] = sensor; }
     void set_bone(uint8_t i, sensor::Sensor *sensor) { bone_sensor_[i] = sensor; }
-
   protected:
-#ifdef USE_TIME
-    optional<time::RealTimeClock *> time_id_{};
-#endif
+    sensor::Sensor *weight_sensor_[8]{nullptr};
+    sensor::Sensor *bmi_sensor_[8]{nullptr};
+    sensor::Sensor *kcal_sensor_[8]{nullptr};
+    sensor::Sensor *fat_sensor_[8]{nullptr};
+    sensor::Sensor *tbw_sensor_[8]{nullptr};
+    sensor::Sensor *muscle_sensor_[8]{nullptr};
+    sensor::Sensor *bone_sensor_[8]{nullptr};
+
+  public:
+    void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
+  protected:
     bool use_timeoffset_ = false;
 
-    u_int32_t registered_notifications_ = 0;
+#ifdef USE_TIME
+  public:
+    void set_time_id(time::RealTimeClock *time_id);
   protected:
-    sensor::Sensor *weight_sensor_[9]{nullptr};
-    sensor::Sensor *bmi_sensor_[9]{nullptr};
-    sensor::Sensor *kcal_sensor_[9]{nullptr};
-    sensor::Sensor *fat_sensor_[9]{nullptr};
-    sensor::Sensor *tbw_sensor_[9]{nullptr};
-    sensor::Sensor *muscle_sensor_[9]{nullptr};
-    sensor::Sensor *bone_sensor_[9]{nullptr};
+    time::RealTimeClock* time_id_ = nullptr;
+#endif
+
+  private:
+    u_int32_t registered_notifications_ = 0;
   };
 } // namespace medisana_bs444
 } // namespace esphome

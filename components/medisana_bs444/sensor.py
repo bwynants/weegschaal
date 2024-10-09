@@ -26,7 +26,7 @@ CONF_MUSCLE="muscle"
 CONF_BONE="bone"
 CONF_TIME_OFFSET = "timeoffset"
 
-DEPENDENCIES = ['esp32', "ble_client", "time"]
+DEPENDENCIES = ["esp32", "ble_client", "time"]
 
 medisana_bs444_ns = cg.esphome_ns.namespace("medisana_bs444")
 MedisanaBS444 = medisana_bs444_ns.class_(
