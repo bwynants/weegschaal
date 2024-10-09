@@ -215,7 +215,7 @@ namespace medisana_bs444
           // send indicate for these handles
           auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                        handle + 1, sizeof(indicationOn), (uint8_t *)indicationOn,
-                                                       ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+                                                       ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
           if (status)
           {
             ESP_LOGE(TAG, "Error sending write request for characteristic handle, status=%d", status);
@@ -239,7 +239,7 @@ namespace medisana_bs444
 
         auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                      write_chr->handle, sizeof(byteArray), (uint8_t *)byteArray,
-                                                     ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+                                                     ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
         if (status)
         {
           ESP_LOGE(TAG, "Error sending datetimestap, status=%d", status);
