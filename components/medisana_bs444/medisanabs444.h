@@ -5,6 +5,7 @@
 #include "esphome/core/component.h"
 
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/components/ble_client/ble_client.h"
 #include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
 
@@ -49,65 +50,77 @@
 
 namespace esphome
 {
-namespace medisana_bs444
-{
-
-  class MedisanaBS444 : public Component, public esphome::ble_client::BLEClientNode
+  namespace medisana_bs444
   {
+    class MedisanaBS444 : public Component, public esphome::ble_client::BLEClientNode
+    {
 
-  private:
-    // The service(es) we are interested in
-    esp32_ble::ESPBTUUID mServiceUUID = Serv_SCALE;
-    // The characteristic of the remote service we are interested in.
-    esp32_ble::ESPBTUUID mCharacteristics[3] = {Char_person, Char_weight, Char_body};
-    uint16_t mCharacteristicHandles[3] = {0, 0, 0};
-    // last read values
-    Person mPerson;
-    Weight mWeight;
-    Body mBody;
+    private:
+      // The service(es) we are interested in
+      esp32_ble::ESPBTUUID mServiceUUID = Serv_SCALE;
+      // The characteristic of the remote service we are interested in.
+      esp32_ble::ESPBTUUID mCharacteristics[3] = {Char_person, Char_weight, Char_body};
+      uint16_t mCharacteristicHandles[3] = {0, 0, 0};
+      // last read values
+      Person mPerson;
+      Weight mWeight;
+      Body mBody;
 
-  public:
-    MedisanaBS444() = default;
+    public:
+      MedisanaBS444() = default;
 
-    void dump_config() override;
+      void dump_config() override;
 
-  protected:
-    time_t now();
+    protected:
+      time_t now();
 
-    void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
+      void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
-  public:
-    void set_weight(uint8_t i, sensor::Sensor *sensor) { weight_sensor_[i] = sensor; }
-    void set_bmi(uint8_t i, sensor::Sensor *sensor) { bmi_sensor_[i] = sensor; }
-    void set_kcal(uint8_t i, sensor::Sensor *sensor) { kcal_sensor_[i] = sensor; }
-    void set_fat(uint8_t i, sensor::Sensor *sensor) { fat_sensor_[i] = sensor; }
-    void set_tbw(uint8_t i, sensor::Sensor *sensor) { tbw_sensor_[i] = sensor; }
-    void set_muscle(uint8_t i, sensor::Sensor *sensor) { muscle_sensor_[i] = sensor; }
-    void set_bone(uint8_t i, sensor::Sensor *sensor) { bone_sensor_[i] = sensor; }
-  protected:
-    sensor::Sensor *weight_sensor_[8]{nullptr};
-    sensor::Sensor *bmi_sensor_[8]{nullptr};
-    sensor::Sensor *kcal_sensor_[8]{nullptr};
-    sensor::Sensor *fat_sensor_[8]{nullptr};
-    sensor::Sensor *tbw_sensor_[8]{nullptr};
-    sensor::Sensor *muscle_sensor_[8]{nullptr};
-    sensor::Sensor *bone_sensor_[8]{nullptr};
+    public:
+      void set_weight(uint8_t i, sensor::Sensor *sensor) { weight_sensor_[i] = sensor; }
+      void set_bmi(uint8_t i, sensor::Sensor *sensor) { bmi_sensor_[i] = sensor; }
+      void set_kcal(uint8_t i, sensor::Sensor *sensor) { kcal_sensor_[i] = sensor; }
+      void set_fat(uint8_t i, sensor::Sensor *sensor) { fat_sensor_[i] = sensor; }
+      void set_tbw(uint8_t i, sensor::Sensor *sensor) { tbw_sensor_[i] = sensor; }
+      void set_muscle(uint8_t i, sensor::Sensor *sensor) { muscle_sensor_[i] = sensor; }
+      void set_bone(uint8_t i, sensor::Sensor *sensor) { bone_sensor_[i] = sensor; }
+      void set_age(uint8_t i, sensor::Sensor *sensor) { age_sensor_[i] = sensor; }
+      void set_size(uint8_t i, sensor::Sensor *sensor) { size_sensor_[i] = sensor; }
+      void set_male(uint8_t i, binary_sensor::BinarySensor *sensor) { male_sensor_[i] = sensor; }
+      void set_female(uint8_t i, binary_sensor::BinarySensor *sensor) { female_sensor_[i] = sensor; }
+      void set_high_activity(uint8_t i, binary_sensor::BinarySensor *sensor) { high_activity_sensor_[i] = sensor; }
 
-  public:
-    void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
-  protected:
-    bool use_timeoffset_ = false;
+    protected:
+      sensor::Sensor *weight_sensor_[8]{nullptr};
+      sensor::Sensor *bmi_sensor_[8]{nullptr};
+      sensor::Sensor *kcal_sensor_[8]{nullptr};
+      sensor::Sensor *fat_sensor_[8]{nullptr};
+      sensor::Sensor *tbw_sensor_[8]{nullptr};
+      sensor::Sensor *muscle_sensor_[8]{nullptr};
+      sensor::Sensor *bone_sensor_[8]{nullptr};
+      sensor::Sensor *age_sensor_[8]{nullptr};
+      sensor::Sensor *size_sensor_[8]{nullptr};
+      binary_sensor::BinarySensor *male_sensor_[8]{nullptr};
+      binary_sensor::BinarySensor *female_sensor_[8]{nullptr};
+      binary_sensor::BinarySensor *high_activity_sensor_[8]{nullptr};
+
+    public:
+      void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
+
+    protected:
+      bool use_timeoffset_ = false;
 
 #ifdef USE_TIME
-  public:
-    void set_time_id(time::RealTimeClock *time_id);
-  protected:
-    time::RealTimeClock* time_id_ = nullptr;
+    public:
+      void set_time_id(time::RealTimeClock *time_id);
+
+    protected:
+      time::RealTimeClock *time_id_ = nullptr;
 #endif
 
-  private:
-    u_int32_t registered_notifications_ = 0;
-  };
-} // namespace medisana_bs444
+    private:
+      u_int32_t registered_notifications_ = 0;
+    };
+  } // namespace medisana_bs444
 } // namespace esphome
 #endif // USE_ESP32
