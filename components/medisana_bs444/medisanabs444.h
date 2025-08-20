@@ -5,7 +5,9 @@
 #include "esphome/core/component.h"
 
 #include "esphome/components/sensor/sensor.h"
+#ifdef USE_BINARY_SENSOR
 #include "esphome/components/binary_sensor/binary_sensor.h"
+#endif
 #include "esphome/components/ble_client/ble_client.h"
 #include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
 
@@ -86,10 +88,11 @@ namespace esphome
       void set_bone(uint8_t i, sensor::Sensor *sensor) { bone_sensor_[i] = sensor; }
       void set_age(uint8_t i, sensor::Sensor *sensor) { age_sensor_[i] = sensor; }
       void set_size(uint8_t i, sensor::Sensor *sensor) { size_sensor_[i] = sensor; }
+#ifdef USE_BINARY_SENSOR
       void set_male(uint8_t i, binary_sensor::BinarySensor *sensor) { male_sensor_[i] = sensor; }
       void set_female(uint8_t i, binary_sensor::BinarySensor *sensor) { female_sensor_[i] = sensor; }
       void set_high_activity(uint8_t i, binary_sensor::BinarySensor *sensor) { high_activity_sensor_[i] = sensor; }
-
+#endif
     protected:
       sensor::Sensor *weight_sensor_[8]{nullptr};
       sensor::Sensor *bmi_sensor_[8]{nullptr};
@@ -100,10 +103,11 @@ namespace esphome
       sensor::Sensor *bone_sensor_[8]{nullptr};
       sensor::Sensor *age_sensor_[8]{nullptr};
       sensor::Sensor *size_sensor_[8]{nullptr};
+#ifdef USE_BINARY_SENSOR
       binary_sensor::BinarySensor *male_sensor_[8]{nullptr};
       binary_sensor::BinarySensor *female_sensor_[8]{nullptr};
       binary_sensor::BinarySensor *high_activity_sensor_[8]{nullptr};
-
+#endif
     public:
       void use_timeoffset(bool use_timeoffset) { use_timeoffset_ = use_timeoffset; }
 
