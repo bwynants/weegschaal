@@ -55,12 +55,6 @@ for x in range(1, 8):
                 accuracy_decimals=1,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional("%s_%s" %(CONF_BMI,x)): sensor.sensor_schema(
-                unit_of_measurement=UNIT_EMPTY,
-                icon=ICON_SCALE_BATHROOM,
-                accuracy_decimals=1,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
             cv.Optional("%s_%s" %(CONF_KILOCALORIERS,x)): sensor.sensor_schema(
                 unit_of_measurement=UNIT_KILOCALORIERS,
                 icon=ICON_EMPTY,
@@ -86,8 +80,8 @@ for x in range(1, 8):
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional("%s_%s" %(CONF_BONE,x)): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon=ICON_PERCENT,
+                unit_of_measurement=UNIT_KILOGRAM,
+                icon=ICON_SCALE_BATHROOM,
                 accuracy_decimals=1,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
