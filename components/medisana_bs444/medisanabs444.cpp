@@ -107,19 +107,19 @@ namespace esphome
           if ((mPerson.person >= 1) && (mPerson.person <= 8))
           {
             uint8_t index = mPerson.person - 1;
-
             // static data
             if (this->age_sensor_[index] && mPerson.age)
               this->age_sensor_[index]->publish_state(mPerson.age);
             if (this->size_sensor_[index] && mPerson.size)
               this->size_sensor_[index]->publish_state(mPerson.size * 100);
+#ifdef USE_BINARY_SENSOR
             if (this->male_sensor_[index])
               this->male_sensor_[index]->publish_state(mPerson.male);
             if (this->female_sensor_[index] && mPerson.size)
               this->female_sensor_[index]->publish_state(!mPerson.male);
             if (this->high_activity_sensor_[index] && mPerson.size)
               this->high_activity_sensor_[index]->publish_state(mPerson.highActivity);
-
+#endif
             if (mWeight.valid && (mWeight.person == mPerson.person))
             {
               ESP_LOGI(TAG, "Weight %s:", mWeight.toString(mPerson).c_str());
