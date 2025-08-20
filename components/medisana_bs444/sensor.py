@@ -1,18 +1,22 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor, ble_client, time
+from esphome.components import sensor, binary_sensor, ble_client, time
 
 from esphome.const import (
     STATE_CLASS_MEASUREMENT,
     UNIT_KILOGRAM,
     UNIT_EMPTY,
     UNIT_PERCENT,
+    UNIT_CENTIMETER,
     CONF_ID,
     CONF_WEIGHT,
+    CONF_SIZE,
     CONF_TIME_ID,
     ICON_SCALE_BATHROOM,
     ICON_PERCENT,
     ICON_EMPTY,
+    ICON_RULER,
+    ICON_TIMELAPSE,
     DEVICE_CLASS_WEIGHT,
 )
 
@@ -24,7 +28,16 @@ CONF_FAT="fat"
 CONF_TBW="tbw"
 CONF_MUSCLE="muscle"
 CONF_BONE="bone"
+CONF_MALE="male"
+CONF_FEMALE="female"
+CONF_AGE="age"
+CONF_HIGHACTIVITY="highactivity"
 CONF_TIME_OFFSET = "timeoffset"
+
+ICON_MALE="mdi:gender-male"
+ICON_FEMALE="mdi:gender-female"
+
+UNIT_AGE="y"
 
 DEPENDENCIES = ["esp32", "ble_client", "time"]
 
@@ -85,6 +98,26 @@ for x in range(1, 8):
                 accuracy_decimals=1,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            # some data entered at the scale
+            cv.Optional("%s_%s" %(CONF_AGE,x)): sensor.sensor_schema(
+                unit_of_measurement=UNIT_AGE,
+                icon=ICON_TIMELAPSE,
+                accuracy_decimals=0,
+            ),
+            cv.Optional("%s_%s" %(CONF_SIZE,x)): sensor.sensor_schema(
+                unit_of_measurement=UNIT_CENTIMETER,
+                icon=ICON_RULER,
+                accuracy_decimals=0,
+            ),
+            cv.Optional("%s_%s" %(CONF_MALE,x)): binary_sensor.binary_sensor_schema(
+                icon=ICON_MALE,
+            ),
+            cv.Optional("%s_%s" %(CONF_FEMALE,x)): binary_sensor.binary_sensor_schema(
+                icon=ICON_FEMALE,
+            ),
+            cv.Optional("%s_%s" %(CONF_HIGHACTIVITY,x)): binary_sensor.binary_sensor_schema(
+                icon=ICON_EMPTY,
+            ),
         }
         )
     )
@@ -140,3 +173,23 @@ async def to_code(config):
         if CONF_VAL in config:
             sens = await sensor.new_sensor(config[CONF_VAL])
             cg.add(var.set_bone(x-1, sens))
+        CONF_VAL = "%s_%s" %(CONF_AGE,x)
+        if CONF_VAL in config:
+            sens = await sensor.new_sensor(config[CONF_VAL])
+            cg.add(var.set_age(x-1, sens))
+        CONF_VAL = "%s_%s" %(CONF_SIZE,x)
+        if CONF_VAL in config:
+            sens = await sensor.new_sensor(config[CONF_VAL])
+            cg.add(var.set_size(x-1, sens))
+        CONF_VAL = "%s_%s" %(CONF_MALE,x)
+        if CONF_VAL in config:
+            sens = await binary_sensor.new_binary_sensor(config[CONF_VAL])
+            cg.add(var.set_male(x-1, sens))
+        CONF_VAL = "%s_%s" %(CONF_FEMALE,x)
+        if CONF_VAL in config:
+            sens = await binary_sensor.new_binary_sensor(config[CONF_VAL])
+            cg.add(var.set_female(x-1, sens))
+        CONF_VAL = "%s_%s" %(CONF_HIGHACTIVITY,x)
+        if CONF_VAL in config:
+            sens = await binary_sensor.new_binary_sensor(config[CONF_VAL])
+            cg.add(var.set_high_activity(x-1, sens))
