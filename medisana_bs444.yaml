@@ -77,7 +77,7 @@ binary_sensor:
     #brigitte
     male_1:
       device_id: scale_user_1
-      name: "Size user 1"
+      name: "Male user 1"
     female_1:
       device_id: scale_user_1
       name: "Female user 1"
@@ -87,7 +87,7 @@ binary_sensor:
     # bert
     male_2:
       device_id: scale_user_2
-      name: "Size user 2"
+      name: "Male user 2"
     female_2:
       device_id: scale_user_2
       name: "Female user 2"
