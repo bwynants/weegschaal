@@ -13,7 +13,17 @@ esphome:
   friendly_name: Medisana BS444
   project:
     name: bwynants.$device_name
-    version: "0.10"
+    version: "0.20"
+  areas:
+    - id: bathroom_area
+      name: "Bathroom"
+  devices:
+    - id: scale_user_1
+      name: "Scale User 1"
+      area_id: bathroom_area
+    - id: scale_user_2
+      name: "Scale User 2"
+      area_id: bathroom_area
 
 esp32:
   board: esp32dev
@@ -30,6 +40,7 @@ api:
     key: !secret api_encryption
 
 ota:
+  platform: esphome
   password: !secret ota_password
 
 wifi:
@@ -56,39 +67,92 @@ ble_client:
   - mac_address: !secret medisana_scale
     id: medisababs44_ble_id
 
+medisana_bs444:
+  - id: myscale
+    timeoffset: true
+
+binary_sensor:
+  - platform: medisana_bs444
+    medisana_bs444_id: myscale
+    #brigitte
+    male_1:
+      device_id: scale_user_1
+      name: "Size user 1"
+    female_1:
+      device_id: scale_user_1
+      name: "Female user 1"
+    highactivity_1:
+      device_id: scale_user_1
+      name: "High Activity user 1"
+    # bert
+    male_2:
+      device_id: scale_user_2
+      name: "Size user 2"
+    female_2:
+      device_id: scale_user_2
+      name: "Female user 2"
+    highactivity_2:
+      device_id: scale_user_2
+      name: "High Activity user 2"
+
 sensor:
   - platform: medisana_bs444
-    ble_client_id: medisababs44_ble_id
-    timeoffset: true # BS444 needs timeoffset
+    medisana_bs444_id: myscale
     weight_1:
+      device_id: scale_user_1
       name: "Weight user 1"
     kcal_1:
+      device_id: scale_user_1
       name: "kcal user 1"
     fat_1:
+      device_id: scale_user_1
       name: "Fat user 1"
     tbw_1:
+      device_id: scale_user_1
       name: "Water user 1"
     muscle_1:
+      device_id: scale_user_1
       name: "Muscle user 1"
     bone_1:
+      device_id: scale_user_1
       name: "Bone user 1"
     bmi_1:
+      device_id: scale_user_1
       name: "BMI user 1"
+    age_1:
+      device_id: scale_user_1
+      name: "Age user 1"
+    size_1:
+      device_id: scale_user_1
+      name: "Size user 1"
 
     weight_2:
+      device_id: scale_user_2
       name: "Weight user 2"
     kcal_2:
+      device_id: scale_user_2
       name: "kcal user 2"
     fat_2:
+      device_id: scale_user_2
       name: "Fat user 2"
     tbw_2:
+      device_id: scale_user_2
       name: "Water user 2"
     muscle_2:
+      device_id: scale_user_2
       name: "Muscle user 2"
     bone_2:
+      device_id: scale_user_2
       name: "Bone user 2"
     bmi_2:
+      device_id: scale_user_2
       name: "BMI user 2"
+    age_2:
+      device_id: scale_user_2
+      name: "Age user 2"
+    size_2:
+      device_id: scale_user_2
+      name: "Size user 2"
 
   - platform: wifi_signal
     name: Wi-Fi Signal
