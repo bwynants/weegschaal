@@ -14,6 +14,7 @@ external_components:
       url: https://github.com/bwynants/weegschaal
       ref: main
     components: [ medisana_bs444 ]
+```
 
 #### Option B: From Local Directory
 
