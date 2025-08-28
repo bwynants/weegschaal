@@ -68,45 +68,43 @@ medisana_bs444:
 sensor:
   - platform: medisana_bs444
     medisana_bs444_id: myscale
-      - platform: medisana_bs444
-        ble_client_id: medisanabs44_ble_id
-        weight_1:
-          name: "Weight User 1"
-        kcal_1:
-          name: "kcal User 1"
-        fat_1:
-          name: "Fat User 1"
-        tbw_1:
-          name: "Water User 1"
-        muscle_1:
-          name: "Muscle User 1"
-        bone_1:
-          name: "Bone User 1"
-        bmi_1:
-          name: "BMI User 1"
-        age_1:
-          name: "Age user 1"
-        size_1:
-          name: "Size user 1"
+    weight_1:
+      name: "Weight User 1"
+    kcal_1:
+      name: "kcal User 1"
+    fat_1:
+      name: "Fat User 1"
+    tbw_1:
+      name: "Water User 1"
+    muscle_1:
+      name: "Muscle User 1"
+    bone_1:
+      name: "Bone User 1"
+    bmi_1:
+      name: "BMI User 1"
+    age_1:
+      name: "Age user 1"
+    size_1:
+      name: "Size user 1"
 
-        weight_2:
-          name: "Weight User 2"
-        kcal_2:
-          name: "kcal User 2"
-        fat_2:
-          name: "Fat User 2"
-        tbw_2:
-          name: "Water User 2"
-        muscle_2:
-          name: "Muscle User 2"
-        bone_2:
-          name: "Bone User 2"
-        bmi_2:
-          name: "BMI User 2"
-        age_2:
-          name: "Age user 2"
-        size_2:
-          name: "Size user 2"
+    weight_2:
+      name: "Weight User 2"
+    kcal_2:
+      name: "kcal User 2"
+    fat_2:
+      name: "Fat User 2"
+    tbw_2:
+      name: "Water User 2"
+    muscle_2:
+      name: "Muscle User 2"
+    bone_2:
+      name: "Bone User 2"
+    bmi_2:
+      name: "BMI User 2"
+    age_2:
+      name: "Age user 2"
+    size_2:
+      name: "Size user 2"
 ```
 
 ### Binary Sensors
