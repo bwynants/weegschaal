@@ -59,6 +59,7 @@ For BS410 & BS444 you need timeoffset: true.
 ```yaml
 medisana_bs444:
   - id: myscale
+    ble_client_id: medisababs44_ble_id
     timeoffset: true 
 ```
 

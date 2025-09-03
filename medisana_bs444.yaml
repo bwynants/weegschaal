@@ -69,6 +69,7 @@ ble_client:
 
 medisana_bs444:
   - id: myscale
+    ble_client_id: medisababs44_ble_id
     timeoffset: true
 
 binary_sensor:
