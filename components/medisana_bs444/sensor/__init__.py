@@ -17,10 +17,10 @@ from esphome.const import (
     ICON_TIMELAPSE,
     DEVICE_CLASS_WEIGHT,
 )
-UNIT_KILOCALORIERS="kcal"
+UNIT_KILOCALORIES="kcal"
 
 CONF_BMI="bmi"
-CONF_KILOCALORIERS="kcal"
+CONF_KILOCALORIES="kcal"
 CONF_FAT="fat"
 CONF_TBW="tbw"
 CONF_MUSCLE="muscle"
@@ -53,8 +53,8 @@ for x in range(1, 8):
                 accuracy_decimals=1,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional("%s_%s" %(CONF_KILOCALORIERS,x)): sensor.sensor_schema(
-                unit_of_measurement=UNIT_KILOCALORIERS,
+            cv.Optional("%s_%s" %(CONF_KILOCALORIES,x)): sensor.sensor_schema(
+                unit_of_measurement=UNIT_KILOCALORIES,
                 icon=ICON_EMPTY,
                 accuracy_decimals=1,
                 state_class=STATE_CLASS_MEASUREMENT,
@@ -119,7 +119,7 @@ async def to_code(config):
         if CONF_VAL in config:
             sens = await sensor.new_sensor(config[CONF_VAL])
             cg.add(var.set_bmi(x-1, sens))
-        CONF_VAL = "%s_%s" %(CONF_KILOCALORIERS,x)
+        CONF_VAL = "%s_%s" %(CONF_KILOCALORIES,x)
         if CONF_VAL in config:
             sens = await sensor.new_sensor(config[CONF_VAL])
             cg.add(var.set_kcal(x-1, sens))

@@ -9,16 +9,16 @@ namespace esphome
   namespace medisana_bs444
   {
 
-    esp32_ble::ESPBTUUID Serv_SCALE = esp32_ble::ESPBTUUID::from_raw("000078b2-0000-1000-8000-00805f9b34fb"); // the service
+    const esp32_ble::ESPBTUUID Serv_SCALE = esp32_ble::ESPBTUUID::from_raw("000078b2-0000-1000-8000-00805f9b34fb"); // the service
 
-    esp32_ble::ESPBTUUID Char_person = esp32_ble::ESPBTUUID::from_raw("00008a82-0000-1000-8000-00805f9b34fb"); // person data handle 22
-    esp32_ble::ESPBTUUID Char_weight = esp32_ble::ESPBTUUID::from_raw("00008a21-0000-1000-8000-00805f9b34fb"); // weight data handle 25
-    esp32_ble::ESPBTUUID Char_body = esp32_ble::ESPBTUUID::from_raw("00008a22-0000-1000-8000-00805f9b34fb");   // body data handle 28
+    const esp32_ble::ESPBTUUID Char_person = esp32_ble::ESPBTUUID::from_raw("00008a82-0000-1000-8000-00805f9b34fb"); // person data handle 22
+    const esp32_ble::ESPBTUUID Char_weight = esp32_ble::ESPBTUUID::from_raw("00008a21-0000-1000-8000-00805f9b34fb"); // weight data handle 25
+    const esp32_ble::ESPBTUUID Char_body = esp32_ble::ESPBTUUID::from_raw("00008a22-0000-1000-8000-00805f9b34fb");   // body data handle 28
 
-    esp32_ble::ESPBTUUID Char_command = esp32_ble::ESPBTUUID::from_raw("00008a81-0000-1000-8000-00805f9b34fb"); // command register handle 31
+    const esp32_ble::ESPBTUUID Char_command = esp32_ble::ESPBTUUID::from_raw("00008a81-0000-1000-8000-00805f9b34fb"); // command register handle 31
 
     // timeoffset used by BS410 and BS444
-    time_t time_offset = 1262304000;
+    const time_t time_offset = 1262304000;
 
     /*******************************************************************************/
     std::string timeAsString(time_t time)
@@ -82,15 +82,15 @@ namespace esphome
         Handle: 0x25 (Person)
         Value:
             Byte  Data                         Value/Return   Interpretation pattern
-            0     fixed byte (validity check)  [0x84]         B (integer, lenght 1)
+            0     fixed byte (validity check)  [0x84]         B (integer, length 1)
             1     -pad byte-                                  x (pad byte)
-            2     person                       [1..8]         B ((integer, lenght 1)
+            2     person                       [1..8]         B (integer, length 1)
             3     -pad byte-                                  x (pad byte)
-            4     gender (1=male, 2=female)    [1|2]          B (integer, lenght 1)
-            5     age                          [0..255 years] B (integer, lenght 1)
-            6     size                         [0..255 cm]    B (integer, lenght 1)
+            4     gender (1=male, 2=female)    [1|2]          B (integer, length 1)
+            5     age                          [0..255 years] B (integer, length 1)
+            6     size                         [0..255 cm]    B (integer, length 1)
             7     -pad byte-                                  x (pad byte)
-            8     activity (0=normal, 3=high)  [0|3]          B (integer, lenght 1)
+            8     activity (0=normal, 3=high)  [0|3]          B (integer, length 1)
             --> Interpretation pattern:                       BxBxBBBxB
       */
       Person result;
@@ -104,7 +104,7 @@ namespace esphome
       return result;
     }
 
-    std::string Weight::toString(const Person &person)
+    std::string Weight::toString(const Person &person) const
     {
       std::stringstream str;
       if (valid)
@@ -112,7 +112,7 @@ namespace esphome
         str << "Person: " << this->person;
         str << "; Time:" << timeAsString(timestamp);
         str << "; weight: " << weight;
-        if (person.valid)
+        if (person.valid && person.size > 0)
         {
           // Normale BMI formule: gewicht / lengte^2
           // Nieuwe BMI formule: 1,3 * gewicht / lengte^2,5
@@ -157,7 +157,7 @@ namespace esphome
       return result;
     }
 
-    std::string Body::toString()
+    std::string Body::toString() const
     {
       std::stringstream str;
       if (valid)
@@ -182,12 +182,12 @@ namespace esphome
         Handle: 0x1e (Body)
         Value:
             Byte  Data                          Value/Return       Interpretation pattern
-             0    fixed byte (validity check)   [0x6f]             B (integer, lenght 1)
+             0    fixed byte (validity check)   [0x6f]             B (integer, length 1)
              1    timestamp                     Unix, date & time  I (integer, length 4)
              2    timestamp
              3    timestamp
              4    timestamp
-             5    person                        [1..8]             B (integer, lenght 1)
+             5    person                        [1..8]             B (integer, length 1)
              6    kcal                          [0..65025 Kcal]    H (integer, length 2)
              7    kcal
              8    fat (percentage of body fat)  [0..100,0 %]       H (integer, length 2)

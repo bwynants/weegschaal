@@ -43,7 +43,9 @@ namespace esphome
     void MedisanaBS444::dump_config()
     {
       ESP_LOGCONFIG(TAG, "MedisanaBS444:");
-      ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str().c_str());
+      if (this->parent()) {
+        ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str().c_str());
+      }
       ESP_LOGCONFIG(TAG, "  timeoffset         : %d", this->use_timeoffset_);
       for (uint8_t i = 0; i < 8; i++)
       {
@@ -72,7 +74,7 @@ namespace esphome
     }
 #endif
 
-    time_t MedisanaBS444::now()
+    time_t MedisanaBS444::now() const
     {
 #ifdef USE_TIME
       if (this->time_id_)
@@ -115,9 +117,9 @@ namespace esphome
 #ifdef USE_BINARY_SENSOR
             if (this->male_sensor_[index])
               this->male_sensor_[index]->publish_state(mPerson.male);
-            if (this->female_sensor_[index] && mPerson.size)
+            if (this->female_sensor_[index])
               this->female_sensor_[index]->publish_state(!mPerson.male);
-            if (this->high_activity_sensor_[index] && mPerson.size)
+            if (this->high_activity_sensor_[index])
               this->high_activity_sensor_[index]->publish_state(mPerson.highActivity);
 #endif
             if (mWeight.valid && (mWeight.person == mPerson.person))
@@ -158,6 +160,10 @@ namespace esphome
         registered_notifications_ = 0;
         for (const auto &characteristic : mCharacteristics)
         {
+          if (!this->parent()) {
+            ESP_LOGE(TAG, "Parent BLE client not available");
+            break;
+          }
           auto *chr = this->parent()->get_characteristic(mServiceUUID, characteristic);
           if (chr == nullptr)
           {
@@ -185,7 +191,7 @@ namespace esphome
       case ESP_GATTC_READ_CHAR_EVT:
       {
         ESP_LOGD(TAG, "ESP_GATTC_READ_CHAR_EVT!");
-        if (param->read.conn_id != this->parent()->get_conn_id())
+        if (!this->parent() || param->read.conn_id != this->parent()->get_conn_id())
           break;
         if (param->read.status != ESP_GATT_OK)
         {
@@ -208,6 +214,10 @@ namespace esphome
           for (const auto &handle : mCharacteristicHandles)
           {
             // send indicate for these handles
+            if (!this->parent()) {
+              ESP_LOGE(TAG, "Parent BLE client not available");
+              break;
+            }
             auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                          handle + 1, sizeof(indicationOn), (uint8_t *)indicationOn,
                                                          ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
@@ -221,6 +231,10 @@ namespace esphome
             }
           }
 
+          if (!this->parent()) {
+            ESP_LOGE(TAG, "Parent BLE client not available");
+            break;
+          }
           auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
           if (write_chr == nullptr)
           {
@@ -237,7 +251,7 @@ namespace esphome
                                                        ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
           if (status)
           {
-            ESP_LOGE(TAG, "Error sending datetimestap, status=%d", status);
+            ESP_LOGE(TAG, "Error sending datetimestamp, status=%d", status);
           }
           ESP_LOGD(TAG, "request to send data sent");
         }

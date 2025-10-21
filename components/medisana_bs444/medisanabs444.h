@@ -59,9 +59,9 @@ namespace esphome
 
     private:
       // The service(es) we are interested in
-      esp32_ble::ESPBTUUID mServiceUUID = Serv_SCALE;
+      const esp32_ble::ESPBTUUID mServiceUUID = Serv_SCALE;
       // The characteristic of the remote service we are interested in.
-      esp32_ble::ESPBTUUID mCharacteristics[3] = {Char_person, Char_weight, Char_body};
+      const esp32_ble::ESPBTUUID mCharacteristics[3] = {Char_person, Char_weight, Char_body};
       uint16_t mCharacteristicHandles[3] = {0, 0, 0};
       // last read values
       Person mPerson;
@@ -74,7 +74,7 @@ namespace esphome
       void dump_config() override;
 
     protected:
-      time_t now();
+      time_t now() const;
 
       void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
