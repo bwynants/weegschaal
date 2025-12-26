@@ -44,7 +44,7 @@ namespace esphome
     {
       ESP_LOGCONFIG(TAG, "MedisanaBS444:");
       if (this->parent()) {
-        ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str().c_str());
+        ESP_LOGCONFIG(TAG, "  MAC address        : %s", this->parent()->address_str());
       }
       ESP_LOGCONFIG(TAG, "  timeoffset         : %d", this->use_timeoffset_);
       for (uint8_t i = 0; i < 8; i++)
