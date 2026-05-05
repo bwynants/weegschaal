@@ -148,9 +148,17 @@ namespace esphome
             --> Interpretation pattern:                           BHxxIxxxxB
       */
       Weight result;
-
-      result.valid = (values[0] == 0x1d);
       result.weight = ((values[2] << 8) | values[1]) / 100.0;
+      if ((values[0] == 0x3d))
+      {
+        result.valid = true;
+        result.weight *=  LB_TO_KG; // it is in lb, so convert to kg
+      }
+      else if ((values[0] == 0x1d))
+        result.valid = true; // it is in kg already, so no conversion needed
+      else
+        result.valid = false;
+
       result.timestamp = sanitize_timestamp((values[8] << 24) | (values[7] << 16) | (values[6] << 8) | values[5], useTimeoffset);
       result.person = values[13];
 

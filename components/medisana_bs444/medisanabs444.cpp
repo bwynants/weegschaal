@@ -197,7 +197,9 @@ namespace esphome
           auto *chr = this->parent()->get_characteristic(mServiceUUID, characteristic);
           if (chr == nullptr)
           {
-            ESP_LOGE(TAG, "No sensor read characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
+            char char_buf[esp32_ble::UUID_STR_LEN];
+            char service_buf[esp32_ble::UUID_STR_LEN];
+            ESP_LOGE(TAG, "No sensor read characteristic found at service %s char %s", mServiceUUID.to_str(service_buf),
                      characteristic.to_string().c_str());
             break;
           }
@@ -214,7 +216,8 @@ namespace esphome
           }
         }
 
-        ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_string().c_str());
+        char service_buf[esp32_ble::UUID_STR_LEN];
+        ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_str(service_buf));
         break;
       }
 
@@ -268,8 +271,10 @@ namespace esphome
           auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
           if (write_chr == nullptr)
           {
-            ESP_LOGE(TAG, "No write characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
-                     Char_command.to_string().c_str());
+            char char_buf[esp32_ble::UUID_STR_LEN];
+            char service_buf[esp32_ble::UUID_STR_No write characteristic found LEN];
+            ESP_LOGE(TAG, "at service %s char %s", mServiceUUID.to_str(service_buf),
+                     Char_command.to_str(char_buf));
             break;
           }
 
