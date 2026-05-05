@@ -17,6 +17,8 @@ namespace esphome
     extern const esp32_ble::ESPBTUUID Char_body;   // body data handle 28
 
     extern const esp32_ble::ESPBTUUID Char_command; // command register handle 31
+    
+    constexpr double LB_TO_KG = 0.45359237;
 
     //   On some scales (e.g. BS410 and BS444, maybe others as well), time=0
     //   equals 1/1/2010. However, goal is to have unix-timestamps. Thus, the

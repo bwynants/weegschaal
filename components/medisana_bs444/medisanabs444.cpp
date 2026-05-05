@@ -200,7 +200,7 @@ namespace esphome
             char char_buf[esp32_ble::UUID_STR_LEN];
             char service_buf[esp32_ble::UUID_STR_LEN];
             ESP_LOGE(TAG, "No sensor read characteristic found at service %s char %s", mServiceUUID.to_str(service_buf),
-                     characteristic.to_string().c_str());
+                     characteristic.to_str(char_buf));
             break;
           }
 
@@ -272,7 +272,7 @@ namespace esphome
           if (write_chr == nullptr)
           {
             char char_buf[esp32_ble::UUID_STR_LEN];
-            char service_buf[esp32_ble::UUID_STR_No write characteristic found LEN];
+            char service_buf[esp32_ble::UUID_STR_LEN];
             ESP_LOGE(TAG, "at service %s char %s", mServiceUUID.to_str(service_buf),
                      Char_command.to_str(char_buf));
             break;
