@@ -26,6 +26,9 @@ MULTI_CONF = True
 
 CONF_MedisanaBS444_ID = "medisana_bs444_id"
 
+# number of users supported by the scale; must match the [8] array sizes in medisanabs444.h
+MAX_USERS = 8
+
 
 medisana_bs444_ns = cg.esphome_ns.namespace("medisana_bs444")
 MedisanaBS444 = medisana_bs444_ns.class_(
