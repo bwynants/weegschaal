@@ -29,14 +29,14 @@ CONF_AGE="age"
 
 UNIT_AGE="y"
 
-from .. import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID
+from .. import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID, MAX_USERS
 
 MEASUREMENTS = cv.Schema({
     });
 
 
-# Generate schema for 8 persons
-for x in range(1, 8):
+# Generate schema for all persons
+for x in range(1, MAX_USERS + 1):
     MEASUREMENTS = MEASUREMENTS.extend(
         cv.Schema(
         {
@@ -56,7 +56,7 @@ for x in range(1, 8):
             cv.Optional("%s_%s" %(CONF_KILOCALORIES,x)): sensor.sensor_schema(
                 unit_of_measurement=UNIT_KILOCALORIES,
                 icon=ICON_EMPTY,
-                accuracy_decimals=1,
+                accuracy_decimals=0,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional("%s_%s" %(CONF_FAT,x)): sensor.sensor_schema(
@@ -104,13 +104,12 @@ CONFIG_SCHEMA = cv.All(
         }
     )
     .extend(MEASUREMENTS)
-    .extend(cv.COMPONENT_SCHEMA).extend()
 )
 
 
 async def to_code(config):
     var = await cg.get_variable(config[CONF_MedisanaBS444_ID])
-    for x in range(1, 8):
+    for x in range(1, MAX_USERS + 1):
         CONF_VAL = "%s_%s" %(CONF_WEIGHT,x)
         if CONF_VAL in config:
             sens = await sensor.new_sensor(config[CONF_VAL])

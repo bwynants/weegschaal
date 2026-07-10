@@ -13,15 +13,15 @@ CONF_HIGHACTIVITY="highactivity"
 ICON_MALE="mdi:gender-male"
 ICON_FEMALE="mdi:gender-female"
 
-from .. import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID
+from .. import MedisanaBS444, medisana_bs444_ns, CONF_MedisanaBS444_ID, MAX_USERS
 
 
 MEASUREMENTS = cv.Schema({
     });
 
 
-# Generate schema for 8 persons
-for x in range(1, 8):
+# Generate schema for all persons
+for x in range(1, MAX_USERS + 1):
     MEASUREMENTS = MEASUREMENTS.extend(
         cv.Schema(
         {
@@ -44,12 +44,11 @@ CONFIG_SCHEMA = cv.All(
         }
     )
     .extend(MEASUREMENTS)
-    .extend(cv.COMPONENT_SCHEMA).extend()
 )
 
 async def to_code(config):
     var = await cg.get_variable(config[CONF_MedisanaBS444_ID])
-    for x in range(1, 8):
+    for x in range(1, MAX_USERS + 1):
         CONF_VAL = "%s_%s" %(CONF_MALE,x)
         if CONF_VAL in config:
             sens = await binary_sensor.new_binary_sensor(config[CONF_VAL])
