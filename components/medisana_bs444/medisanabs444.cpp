@@ -183,22 +183,27 @@ namespace esphome
       case ESP_GATTC_SEARCH_CMPL_EVT:
       {
         ESP_LOGD(TAG, "ESP_GATTC_SEARCH_CMPL_EVT!");
-        // reset
+        // reset, including stale handles from a previous connection
         mPerson = Person();
         mBody = Body();
         mWeight = Weight();
         registered_notifications_ = 0;
-        for (const auto &characteristic : mCharacteristics)
+        for (auto &handle : mCharacteristicHandles)
+          handle = 0;
+        if (!this->parent()) {
+          ESP_LOGE(TAG, "Parent BLE client not available");
+          break;
+        }
+        for (uint8_t i = 0; i < 3; i++)
         {
-          if (!this->parent()) {
-            ESP_LOGE(TAG, "Parent BLE client not available");
-            break;
-          }
+          const auto &characteristic = mCharacteristics[i];
           auto *chr = this->parent()->get_characteristic(mServiceUUID, characteristic);
           if (chr == nullptr)
           {
-            ESP_LOGE(TAG, "No sensor read characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
-                     characteristic.to_string().c_str());
+            char char_buf[esp32_ble::UUID_STR_LEN];
+            char service_buf[esp32_ble::UUID_STR_LEN];
+            ESP_LOGE(TAG, "No sensor read characteristic found at service %s char %s", mServiceUUID.to_str(service_buf),
+                     characteristic.to_str(char_buf));
             break;
           }
 
@@ -209,13 +214,15 @@ namespace esphome
           }
           else
           {
-            mCharacteristicHandles[registered_notifications_] = chr->handle;
+            // store at the characteristic's positional index so ESP_GATTC_NOTIFY_EVT
+            // matches each handle to the right decoder even if a registration fails
+            mCharacteristicHandles[i] = chr->handle;
             registered_notifications_++;
           }
         }
 
-        ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_string().c_str());
-        break;
+        char service_buf[esp32_ble::UUID_STR_LEN];
+        ESP_LOGD(TAG, "All characteristic found at service %s", mServiceUUID.to_str(service_buf));        break;
       }
 
       case ESP_GATTC_READ_CHAR_EVT:
@@ -234,20 +241,25 @@ namespace esphome
       case ESP_GATTC_REG_FOR_NOTIFY_EVT:
       {
         ESP_LOGD(TAG, "ESP_GATTC_REG_FOR_NOTIFY_EVT!");
+        if (registered_notifications_ == 0)
+          break; // spurious/late event, don't underflow the counter
         if (--registered_notifications_ == 0)
         {
           // all notify requests are handled
           this->node_state = esp32_ble_tracker::ClientState::ESTABLISHED;
 
+          if (!this->parent()) {
+            ESP_LOGE(TAG, "Parent BLE client not available");
+            break;
+          }
+
           const uint8_t indicationOn[] = {0x2, 0x0};
-          // for (uint8_t i = 0; i < 3; i++)
           for (const auto &handle : mCharacteristicHandles)
           {
+            // skip unused slots (characteristic not found / not registered)
+            if (handle == 0)
+              continue;
             // send indicate for these handles
-            if (!this->parent()) {
-              ESP_LOGE(TAG, "Parent BLE client not available");
-              break;
-            }
             auto status = esp_ble_gattc_write_char_descr(this->parent()->get_gattc_if(), this->parent()->get_conn_id(),
                                                          handle + 1, sizeof(indicationOn), (uint8_t *)indicationOn,
                                                          ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
@@ -261,15 +273,13 @@ namespace esphome
             }
           }
 
-          if (!this->parent()) {
-            ESP_LOGE(TAG, "Parent BLE client not available");
-            break;
-          }
           auto *write_chr = this->parent()->get_characteristic(mServiceUUID, Char_command);
           if (write_chr == nullptr)
           {
-            ESP_LOGE(TAG, "No write characteristic found at service %s char %s", mServiceUUID.to_string().c_str(),
-                     Char_command.to_string().c_str());
+            char char_buf[esp32_ble::UUID_STR_LEN];
+            char service_buf[esp32_ble::UUID_STR_LEN];
+            ESP_LOGE(TAG, "at service %s char %s", mServiceUUID.to_str(service_buf),
+                     Char_command.to_str(char_buf));
             break;
           }
 
@@ -325,7 +335,7 @@ namespace esphome
             ESP_LOGE(TAG, "Skipped future event!");
         }
         else
-          ESP_LOGE(TAG, "Skipped future event!");
+          ESP_LOGW(TAG, "Notification for unknown handle 0x%x", param->notify.handle);
         break;
       }
 
