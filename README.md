@@ -43,7 +43,7 @@ Replace with your scale’s MAC address:
 ```yaml
 ble_client:
   - mac_address: "00:00:00:00:00:00"
-    id: medisanabs44_ble_id
+    id: medisana_bs444_scale_ble_id
 ```
 
 ### 4. Configure the Scale
@@ -59,7 +59,7 @@ For BS410 & BS444 you need timeoffset: true.
 ```yaml
 medisana_bs444:
   - id: myscale
-    ble_client_id: medisababs44_ble_id
+    ble_client_id: medisana_bs444_scale_ble_id
     timeoffset: true 
 ```
 
